@@ -32,5 +32,4 @@ agent = ao.Agent(arch, uid="2")
 
 # Example inference
 response = agent.next_state([1, 1, 1, 0, 1])  # Predict likelihood for a returning user with item and logged in
-
-print(response)
+print("Predicted likelihood of buying: ", sum(1 for ones in response if ones == 1) / len(response)*100, "%")
