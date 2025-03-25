@@ -1,8 +1,9 @@
 import ao_pyth as ao
 from config import API_KEY
 
-# Initialize architecture with predefined input and output sizes
-arch = ao.Arch(arch_i="[1, 1, 1, 1, 1]", arch_z="[1, 1, 1, 1, 1]", api_key=API_KEY, kennel_id="Parsed_DEMO2")
+# Initialize architecture with predefined 5 input neurons, 5 q(hidden) neurons, 5 output neurons. 
+#The 5 output neurons correspond to the likelihood of buying (scale 1-5)
+arch = ao.Arch(arch_i="[1, 1, 1, 1, 1]", arch_z="[1, 1, 1, 1, 1]", api_key=API_KEY, kennel_id="Parsed_DEMO2") #Create new arch  in our api, if not already created.
 print(arch.api_status)
 # Create an agent with the given architecture
 agent = ao.Agent(arch, uid="2")
@@ -12,7 +13,7 @@ agent = ao.Agent(arch, uid="2")
 # Corresponding label: Likelihood of buying (scale 1-5)
 
 
-###UNCOMMENT TO TRAIN THE AGENt
+###UNCOMMENT TO TRAIN THE AGENT###
 # training_data = [
 #     ([1, 1, 1, 1, 0], [1,1,1,1,0]),  # New user, logged in, payment setup, has item – high chance
 #     ([1, 1, 1, 0, 1], [1,1,1,1,1]),  # Returning user, logged in, payment setup, has item – very high chance
@@ -31,7 +32,10 @@ agent = ao.Agent(arch, uid="2")
 #     agent.next_state(INPUT=inp, LABEL=label)
 
 # Example inference
-response = agent.next_state([1, 1, 1, 0, 1])  # Predict likelihood for a returning user with item and logged in
+response = agent.next_state([1, 1, 1, 0, 1])  # Predict likelihood for a user with payment setup, item in basket, logged in, returning user
+
+
+##Get number of ones in response to calculate percentage.
 ones = 0
 for item in enumerate(response):
     if item[1] == 1:
