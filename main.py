@@ -1,44 +1,38 @@
 import ao_pyth as ao
 from config import API_KEY
 
-# Initialize architecture with predefined 5 input neurons, 5 q(hidden) neurons, 5 output neurons. 
-#The 5 output neurons correspond to the likelihood of buying (scale 1-5)
-arch = ao.Arch(arch_i="[1, 1, 1, 1, 1]", arch_z="[1, 1, 1, 1, 1]", api_key=API_KEY, kennel_id="Parsed_DEMO2") #Create new arch  in our api, if not already created.
+# Initialize architecture with predefined 4 input neurons, 5 hidden neurons, 5 output neurons. 
+# The 5 output neurons correspond to the likelihood of buying (scale 1-5)
+arch = ao.Arch(arch_i="[1, 1, 1, 1]", arch_z="[1, 1, 1, 1, 1]", api_key=API_KEY, kennel_id="Parsed_DEMO3") 
 print(arch.api_status)
+
 # Create an agent with the given architecture
-agent = ao.Agent(arch, uid="2")
+agent = ao.Agent(arch, uid="test1")
 
-# Training examples: Each input set follows the format:
-# [Payment setup, Item in basket, User logged in, User new, User returning]
-# Corresponding label: Likelihood of buying (scale 1-5)
+# Training examples: 
+# Format: [Payment setup, Item in basket, User logged in, User new] -> Likelihood of buying (scale 1-5)
+training_data = [
+    ([1, 1, 1, 0], [1, 1, 1, 1, 1]),  # High likelihood (returning user, logged in, has item)
+    ([1, 1, 0, 0], [1, 1, 1, 0, 1]),  # Medium likelihood (not logged in)
+    ([0, 1, 1, 0], [1, 1, 0, 1, 0]),  # Medium-low likelihood (no payment setup)
+    ([1, 0, 1, 1], [1, 0, 1, 0, 0]),  # Low likelihood (no item in basket)
+    ([0, 0, 0, 1], [0, 0, 1, 0, 0]),  # Very low likelihood (new user, no setup, no item)
+    ([1, 1, 1, 1], [1, 1, 1, 1, 1]),  # Highest likelihood (everything is optimal)
+    ([0, 1, 1, 1], [1, 1, 0, 1, 0]),  # Medium-low likelihood (new user)
+    ([1, 0, 0, 0], [0, 1, 0, 0, 0]),  # Very low likelihood (no basket, not logged in)
+    ([1, 1, 0, 1], [1, 0, 1, 0, 1]),  # Medium likelihood (new user but has setup)
+    ([1, 0, 1, 0], [0, 1, 0, 1, 0])   # Low likelihood (no item)
+]
 
-
-###UNCOMMENT TO TRAIN THE AGENT###
-# training_data = [
-#     ([1, 1, 1, 1, 0], [1,1,1,1,0]),  # New user, logged in, payment setup, has item – high chance
-#     ([1, 1, 1, 0, 1], [1,1,1,1,1]),  # Returning user, logged in, payment setup, has item – very high chance
-#     ([1, 1, 0, 1, 0], [1,1,1,0,0]),  # New user, item in basket, but not logged in – medium chance
-#     ([1, 0, 1, 0, 1], [1,1,0,0,0]),  # Returning user, logged in, no item in basket – low chance
-#     ([0, 1, 1, 0, 1], [1,1,1,1,0]),  # Returning user, logged in, item in basket, no payment setup – good chance
-#     ([1, 1, 0, 0, 1], [1,1,1,0,0]),  # Returning user, item in basket, but not logged in – medium chance
-#     ([0, 0, 1, 0, 1], [1,0,0,0,0]),  # Returning user, logged in, no item, no payment – very low chance
-#     ([1, 1, 1, 0, 0], [1,1,1,1,0]),  # Not new or returning, logged in, item in basket – good chance
-#     ([0, 1, 0, 1, 0], [1,1,0,0,0]),  # New user, item in basket, no login, no payment – low chance
-#     ([1, 0, 0, 0, 1], [1,0,0,0,0]),  # Returning user, no item, not logged in – very low chance
-# ]
-
-# # Train the agent with the examples
+# Train the agent with the examples
+###Uncomment to train the agent
 # for inp, label in training_data:
-#     agent.next_state(INPUT=inp, LABEL=label)
+#     agent.next_state(INPUT=inp, LABEL=label, unsequenced=True)
 
 # Example inference
-response = agent.next_state([1, 1, 1, 0, 1])  # Predict likelihood for a user with payment setup, item in basket, logged in, returning user
+response = agent.next_state([0, 1, 1, 0], unsequenced=True)  # Predict likelihood for a user with payment setup, item in basket, logged in, returning user
 
+# Calculate percentage of ones in response
+ones = sum(1 for item in response if item == 1)
 
-##Get number of ones in response to calculate percentage.
-ones = 0
-for item in enumerate(response):
-    if item[1] == 1:
-        ones +=1
-
-print("Predicted likelihood of buying: ", ones / len(response)*100, "%")
+print("Predicted likelihood of buying: ", ones / len(response) * 100, "%")
