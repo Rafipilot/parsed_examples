@@ -7,7 +7,7 @@ arch = ao.Arch(arch_i="[1, 1, 1, 1]", arch_z="[1, 1, 1, 1, 1]", api_key=API_KEY,
 print(arch.api_status)
 
 # Create an agent with the given architecture
-agent = ao.Agent(arch, uid="ContLearn2")
+agent = ao.Agent(arch, uid="ContLearn4")
 
 # Training examples: 
 # Format: [Payment setup, Item in basket, User logged in, User new] -> Likelihood of buying (scale 1-5)
@@ -51,7 +51,7 @@ if i == "Y":
 if i == "N":
     ones = sum(response)
     Label = [1]*(ones-1)
-    Label += [0]*(len(Label)-ones)
+    Label += [0]*(6-ones)
     print("old response: ", response)
     print("new label: ", Label)
     agent.next_state([1, 0, 1, 0], Label, unsequenced=True) 
