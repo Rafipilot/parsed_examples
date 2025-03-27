@@ -6,7 +6,7 @@ from config import API_KEY
 arch = ao.Arch(arch_i="[1, 1, 1, 1]", arch_z="[1, 1, 1, 1, 1]", api_key=API_KEY, kennel_id="Parsed_DEMO3") 
 print(arch.api_status)
 
-# Create an agent with the given architecture
+# Create an agent for each user with the given architecture
 agent = ao.Agent(arch, uid="ContLearn4")
 
 # Training examples: 
@@ -30,13 +30,12 @@ training_data = [
 #     agent.next_state(INPUT=inp, LABEL=label, unsequenced=True)  # Reset states and unsequenced True
 
 
-#Incremental Labels required for continous learning...
+# Experimental -- Incremental labels for more granular continuous learning
 
 response = agent.next_state([1, 0, 1, 0], unsequenced=True) 
 ones = sum(response)
 
 print("Predicted likelihood of buying: ", ones / len(response) * 100, "%")
-
 
 i = input("did the user buy? Y/N: ")
 
@@ -55,5 +54,3 @@ if i == "N":
     print("old response: ", response)
     print("new label: ", Label)
     agent.next_state([1, 0, 1, 0], Label, unsequenced=True) 
-
-

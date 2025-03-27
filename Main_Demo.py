@@ -9,7 +9,8 @@ print(arch.api_status)
 # Create an agent with the given architecture
 agent = ao.Agent(arch, uid="Test10")
 
-# Training examples: 
+# If you have a baseline that applies to all users (like below), it can be used to pre-train users' agents
+# Training examples:
 # Format: [Payment setup, Item in basket, User logged in, User new] -> Likelihood of buying (scale 1-5)
 training_data = [
     ([1, 1, 1, 0], [1, 1, 1, 1, 1]),  # High likelihood (returning user, logged in, has item)
