@@ -1,13 +1,15 @@
-import ao_pyth as ao
-from config import API_KEY
+import ao_pyth as ao  # pip install ao_pyth - our api python wrapper
+from config import ao_apikey # 
 
-# Initialize architecture with predefined 4 input neurons, 4 hidden neurons, 5 output neurons. 
-# The 5 output neurons correspond to the likelihood of buying (scale 1-5)
-arch = ao.Arch(arch_i="[1, 1, 1, 1]", arch_z="[1, 1, 1, 1, 1]", api_key=API_KEY, kennel_id="Parsed_DEMO3") 
+# Initialize architecture with predefined 4 input neurons, 4 hidden neurons (not user-specified, created by default), 5 output neurons. 
+# The 5 output neurons (arch_z) correspond to the likelihood of buying (scale 1-5)
+arch = ao.Arch(arch_i="[1, 1, 1, 1]", arch_z="[1, 1, 1, 1, 1]", api_key=ao_apikey, kennel_id="Parsed_DEMO4") 
 print(arch.api_status)
 
 # Create an agent with the given architecture
-agent = ao.Agent(arch, uid="Test10")
+agent = ao.Agent(arch, uid="Test1") # pass unique uids here to provision agents for per-user
+agent._core_api_compatibility= True
+
 
 # If you have a baseline that applies to all users (like below), it can be used to pre-train users' agents
 # Training examples:
@@ -26,32 +28,31 @@ training_data = [
 ]
 
 # Train the agent with the examples
-###Uncomment to train the agent
+### Uncomment to train the agent
 for inp, label in training_data:
     agent.next_state(INPUT=inp, LABEL=label, unsequenced=True)  # Reset states and unsequenced True
 
 # Example inference
-response = agent.next_state([1, 1, 1, 0], unsequenced=True)  # Predict likelihood for a user with payment setup, item in basket, logged in, returning user
-print("response: ", response)
+for x in range(4):
+    response = agent.next_state([1, 1, 1, 0], unsequenced=False)  # Predict likelihood for a user with payment setup, item in basket, logged in, returning user
+    print("Response: ", response)
 # Calculate percentage of ones in response
 ones = sum(response)
 
 print("Predicted likelihood of buying: ", ones / len(response) * 100, "%")
 
 
-#Stationary Labels
-
-i = input("did the user buy? Y/N: ")
+# Closing the learning Loop
+i = input("Did the user complete their purchase? Y/N: ")
 
 if i == "Y":
-    Label = [1, 1, 1, 1, 1]
+    Label = [1, 1, 1, 1, 1] # corresponding to 100%
     print("old response: ", response)
     print("new label: ", Label)
     agent.next_state([1, 1, 1, 0], Label, unsequenced=True)  # Retrain the agent with the new label
 
 if i == "N":
-    Label = [0, 0, 0, 0, 0]
+    Label = [0, 0, 0, 0, 0] # corresponding to 0%
     print("old response: ", response)
     print("new label: ", Label)
     agent.next_state([1, 1, 1, 0], Label, unsequenced=True)
-
